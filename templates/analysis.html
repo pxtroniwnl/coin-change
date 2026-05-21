@@ -2,13 +2,25 @@
 {% block title %}Análisis Comparativo{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>Análisis Comparativo de Algoritmos</h2>
+
+<div class="hero">
+    <div class="hero-badge">Benchmarking &nbsp;·&nbsp; Comparación de rendimiento</div>
+    <h1>Análisis <span class="highlight">Comparativo</span></h1>
     <p>
-        Esta sección ejecuta benchmarks de los tres algoritmos con montos crecientes
-        y genera gráficos comparativos de rendimiento.
+        Ejecuta los tres algoritmos con montos crecientes y genera gráficos comparativos
+        de tiempo de ejecución y calidad de solución.
     </p>
 </div>
+
+{% if error %}
+<div class="error-card">
+    <span class="error-icon">✗</span>
+    <div>
+        <h2>Error</h2>
+        <p>{{ error }}</p>
+    </div>
+</div>
+{% endif %}
 
 <div class="card">
     <h2>Configurar análisis</h2>
@@ -22,9 +34,9 @@
             <label for="max_amount">Monto máximo a evaluar</label>
             <input type="number" id="max_amount" name="max_amount"
                    value="200" min="10" max="500" required>
-            <small style="color: #666;">Backtracking se prueba con montos reducidos (máx. 60) por su alto costo.</small>
+            <small>Backtracking se prueba con montos reducidos (máx. 60) por su alto costo computacional.</small>
         </div>
-        <button type="submit" class="btn btn-primary">Ejecutar análisis</button>
+        <button type="submit" class="btn btn-primary">Ejecutar análisis →</button>
     </form>
 </div>
 
@@ -49,7 +61,7 @@
 {% if points %}
 <div class="card">
     <h2>Datos del análisis</h2>
-    <div class="table-wrapper" style="max-height: 500px; overflow-y: auto;">
+    <div class="table-wrapper" style="max-height:500px; overflow-y:auto;">
         <table>
             <thead>
                 <tr>
@@ -64,12 +76,9 @@
                 <tr>
                     <td>{{ point.amount }}</td>
                     <td>
-                        {% if point.algorithm == 'greedy' %}
-                            Voraz
-                        {% elif point.algorithm == 'dp' %}
-                            DP
-                        {% elif point.algorithm == 'backtracking' %}
-                            Backtracking
+                        {% if point.algorithm == 'greedy' %}Voraz
+                        {% elif point.algorithm == 'dp' %}DP
+                        {% elif point.algorithm == 'backtracking' %}Backtracking
                         {% endif %}
                     </td>
                     <td>{{ "%.4f"|format(point.time_ms) }}</td>
@@ -77,7 +86,7 @@
                         {% if point.coins_used >= 0 %}
                             {{ point.coins_used }}
                         {% else %}
-                            <em>Timeout</em>
+                            <em style="color:var(--muted)">Timeout</em>
                         {% endif %}
                     </td>
                 </tr>
@@ -90,19 +99,35 @@
 
 <div class="card">
     <h2>Conclusiones</h2>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
-        <div class="result-item">
-            <h3 style="color: #2ecc71;">Algoritmo Voraz</h3>
-            <p><strong>Más rápido</strong> de los tres. Su tiempo de ejecución es prácticamente instantáneo incluso para montos grandes. Sin embargo, <strong>no garantiza la solución óptima</strong> en sistemas de monedas no canónicos.</p>
+    <div class="conclusions-grid">
+        <div class="algo-card greedy">
+            <span class="complexity">O(n)</span>
+            <h3>Algoritmo Voraz</h3>
+            <p>
+                <strong>Más rápido</strong> de los tres. Tiempo prácticamente instantáneo incluso
+                para montos grandes. Sin embargo, <strong>no garantiza la solución óptima</strong>
+                en sistemas de monedas no canónicos.
+            </p>
         </div>
-        <div class="result-item">
-            <h3 style="color: #3498db;">Programación Dinámica</h3>
-            <p><strong>Mejor equilibrio</strong> entre velocidad y optimalidad. Siempre encuentra la solución óptima con un tiempo de ejecución polinomial O(m × n). Es la implementación recomendada para uso general.</p>
+        <div class="algo-card dp">
+            <span class="complexity">O(m × n)</span>
+            <h3>Programación Dinámica</h3>
+            <p>
+                <strong>Mejor equilibrio</strong> entre velocidad y optimalidad. Siempre encuentra
+                la solución óptima con tiempo polinomial. Es la implementación
+                <strong>recomendada para uso general</strong>.
+            </p>
         </div>
-        <div class="result-item">
-            <h3 style="color: #e74c3c;">Backtracking</h3>
-            <p><strong>Alto costo computacional</strong> (exponencial). Solo es práctico para montos pequeños (&le; 60). Su crecimiento explosivo lo hace inviable para problemas grandes, aunque siempre encuentra el óptimo.</p>
+        <div class="algo-card backtracking">
+            <span class="complexity">O(2ⁿ)</span>
+            <h3>Backtracking</h3>
+            <p>
+                <strong>Alto costo computacional</strong> exponencial. Solo práctico para montos
+                pequeños (&le;60). Su crecimiento explosivo lo hace <strong>inviable para problemas
+                grandes</strong>, aunque siempre encuentra el óptimo.
+            </p>
         </div>
     </div>
 </div>
+
 {% endblock %}

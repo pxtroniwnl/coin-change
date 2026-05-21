@@ -2,12 +2,13 @@
 {% block title %}Inicio{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>Problema del Cambio de Moneda</h2>
+
+<div class="hero">
+    <div class="hero-badge">Proyecto Final &nbsp;·&nbsp; Algoritmo y Complejidad &nbsp;·&nbsp; 2026</div>
+    <h1>El problema del<br><span class="highlight">Cambio de Moneda</span></h1>
     <p>
-        Encuentra la mínima cantidad de monedas necesarias para formar un valor exacto
-        utilizando un conjunto determinado de denominaciones. Resuelve el problema usando
-        tres enfoques algorítmicos diferentes y compara sus resultados.
+        Dado un conjunto de denominaciones y un monto objetivo, ¿cuántas monedas son necesarias como mínimo?
+        Compara tres paradigmas algorítmicos y analiza su eficiencia y optimalidad.
     </p>
 </div>
 
@@ -17,7 +18,7 @@
         <div class="form-group">
             <label for="coin_system">Sistema de monedas predefinido</label>
             <select id="coin_system" onchange="updateCoins()">
-                <option value="">-- Personalizado --</option>
+                <option value="">— Personalizado —</option>
                 {% for system in coin_systems %}
                 <option value="{{ system.denominations | join(',') }}"
                         data-canonical="{{ system.canonical | lower }}">
@@ -58,30 +59,30 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary">Resolver</button>
+        <button type="submit" class="btn btn-primary">Resolver →</button>
     </form>
 </div>
 
 <div class="card">
     <h2>Paradigmas implementados</h2>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
-        <div class="result-item">
-            <h3 style="color: #2ecc71;">Voraz (Greedy)</h3>
-            <p><strong>Complejidad:</strong> O(n)</p>
-            <p><strong>Óptimo:</strong> <span class="badge badge-warning">No siempre</span></p>
-            <p>Selecciona siempre la moneda de mayor valor posible. Rápido pero no garantiza el óptimo en sistemas no canónicos.</p>
+    <div class="algo-grid">
+        <div class="algo-card greedy">
+            <span class="complexity">O(n) tiempo · O(1) espacio</span>
+            <h3>Voraz (Greedy)</h3>
+            <p>Selecciona siempre la moneda de mayor valor posible. Rápido y simple, pero <strong>no garantiza el óptimo</strong> en sistemas no canónicos.</p>
+            <p style="margin-top:0.5rem;"><span class="badge badge-warning">No siempre óptimo</span></p>
         </div>
-        <div class="result-item">
-            <h3 style="color: #3498db;">Programación Dinámica</h3>
-            <p><strong>Complejidad:</strong> O(m × n)</p>
-            <p><strong>Óptimo:</strong> <span class="badge badge-success">Siempre</span></p>
-            <p>Divide el problema en subproblemas y almacena resultados en una tabla. Balance ideal entre eficiencia y optimalidad.</p>
+        <div class="algo-card dp">
+            <span class="complexity">O(m × n) tiempo · O(m) espacio</span>
+            <h3>Programación Dinámica</h3>
+            <p>Divide el problema en subproblemas y almacena resultados en tabla. Balance ideal entre eficiencia y <strong>optimalidad garantizada</strong>.</p>
+            <p style="margin-top:0.5rem;"><span class="badge badge-success">Siempre óptimo</span></p>
         </div>
-        <div class="result-item">
-            <h3 style="color: #e74c3c;">Backtracking</h3>
-            <p><strong>Complejidad:</strong> O(2<sup>n</sup>)</p>
-            <p><strong>Óptimo:</strong> <span class="badge badge-success">Siempre</span></p>
-            <p>Explora todas las combinaciones posibles. Alto costo computacional; útil solo para montos pequeños.</p>
+        <div class="algo-card backtracking">
+            <span class="complexity">O(2ⁿ) tiempo · O(n) espacio</span>
+            <h3>Backtracking</h3>
+            <p>Explora todas las combinaciones posibles de forma recursiva. <strong>Alto costo computacional</strong>; práctico solo para montos pequeños (&le;60).</p>
+            <p style="margin-top:0.5rem;"><span class="badge badge-success">Siempre óptimo</span></p>
         </div>
     </div>
 </div>

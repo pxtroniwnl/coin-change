@@ -72,7 +72,7 @@ async def solve(
     request: Request,
     coins: str = Form(...),
     amount: int = Form(...),
-    algorithms: list[str] = Form(...),
+    algorithms: list[str] = Form(default=[]),
 ):
     """Ejecuta los algoritmos seleccionados y muestra los resultados.
 
@@ -85,6 +85,18 @@ async def solve(
     Returns:
         Página HTML con los resultados de cada algoritmo.
     """
+    if not algorithms:
+        return templates.TemplateResponse(
+            request,
+            'result.html',
+            {
+                'error': 'Debes seleccionar al menos un algoritmo.',
+                'amount': amount,
+                'request_coins': coins,
+                'results': [],
+            },
+        )
+
     try:
         coins_list = sorted([int(c.strip()) for c in coins.split(',') if c.strip()])
         if not coins_list:
