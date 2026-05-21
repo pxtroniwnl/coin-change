@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Change - {% block title %}Inicio{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1>Coin Change</h1>
+            <nav>
+                <a href="/" class="{% if request.url.path == '/' %}active{% endif %}">Inicio</a>
+                <a href="/analysis" class="{% if request.url.path == '/analysis' %}active{% endif %}">Análisis</a>
+            </nav>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Proyecto de Algoritmo y Complejidad &mdash; Cambio de Moneda (Coin Change Problem) &copy; 2026</p>
+        </div>
+    </footer>
+</body>
+</html>

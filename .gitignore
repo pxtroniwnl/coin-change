@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.env
+static/graphs/*.png
+.DS_Store

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Análisis Comparativo{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Análisis Comparativo de Algoritmos</h2>
+    <p>
+        Esta sección ejecuta benchmarks de los tres algoritmos con montos crecientes
+        y genera gráficos comparativos de rendimiento.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Configurar análisis</h2>
+    <form action="/analysis" method="post">
+        <div class="form-group">
+            <label for="coins">Denominaciones (separadas por coma)</label>
+            <input type="text" id="coins" name="coins"
+                   value="1,5,10,25" placeholder="Ej: 1,5,10,25" required>
+        </div>
+        <div class="form-group">
+            <label for="max_amount">Monto máximo a evaluar</label>
+            <input type="number" id="max_amount" name="max_amount"
+                   value="200" min="10" max="500" required>
+            <small style="color: #666;">Backtracking se prueba con montos reducidos (máx. 60) por su alto costo.</small>
+        </div>
+        <button type="submit" class="btn btn-primary">Ejecutar análisis</button>
+    </form>
+</div>
+
+{% if graph_path %}
+<div class="card">
+    <h2>Tiempo de ejecución vs Monto objetivo</h2>
+    <div class="graph-container">
+        <img src="/{{ graph_path }}" alt="Gráfico de tiempo de ejecución">
+    </div>
+</div>
+{% endif %}
+
+{% if coins_used_graph_path %}
+<div class="card">
+    <h2>Cantidad de monedas vs Monto objetivo</h2>
+    <div class="graph-container">
+        <img src="/{{ coins_used_graph_path }}" alt="Gráfico de monedas usadas">
+    </div>
+</div>
+{% endif %}
+
+{% if points %}
+<div class="card">
+    <h2>Datos del análisis</h2>
+    <div class="table-wrapper" style="max-height: 500px; overflow-y: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Monto</th>
+                    <th>Algoritmo</th>
+                    <th>Tiempo (ms)</th>
+                    <th>Monedas usadas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for point in points %}
+                <tr>
+                    <td>{{ point.amount }}</td>
+                    <td>
+                        {% if point.algorithm == 'greedy' %}
+                            Voraz
+                        {% elif point.algorithm == 'dp' %}
+                            DP
+                        {% elif point.algorithm == 'backtracking' %}
+                            Backtracking
+                        {% endif %}
+                    </td>
+                    <td>{{ "%.4f"|format(point.time_ms) }}</td>
+                    <td>
+                        {% if point.coins_used >= 0 %}
+                            {{ point.coins_used }}
+                        {% else %}
+                            <em>Timeout</em>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <h2>Conclusiones</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+        <div class="result-item">
+            <h3 style="color: #2ecc71;">Algoritmo Voraz</h3>
+            <p><strong>Más rápido</strong> de los tres. Su tiempo de ejecución es prácticamente instantáneo incluso para montos grandes. Sin embargo, <strong>no garantiza la solución óptima</strong> en sistemas de monedas no canónicos.</p>
+        </div>
+        <div class="result-item">
+            <h3 style="color: #3498db;">Programación Dinámica</h3>
+            <p><strong>Mejor equilibrio</strong> entre velocidad y optimalidad. Siempre encuentra la solución óptima con un tiempo de ejecución polinomial O(m × n). Es la implementación recomendada para uso general.</p>
+        </div>
+        <div class="result-item">
+            <h3 style="color: #e74c3c;">Backtracking</h3>
+            <p><strong>Alto costo computacional</strong> (exponencial). Solo es práctico para montos pequeños (&le; 60). Su crecimiento explosivo lo hace inviable para problemas grandes, aunque siempre encuentra el óptimo.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

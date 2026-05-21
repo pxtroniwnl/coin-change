@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Resultados{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Resultados</h2>
+    <p>
+        <strong>Denominaciones:</strong> {{ request_coins }}<br>
+        <strong>Monto objetivo:</strong> {{ amount }}
+    </p>
+</div>
+
+{% if error %}
+<div class="card" style="border: 2px solid var(--danger);">
+    <h2 style="color: var(--danger);">Error</h2>
+    <p>{{ error }}</p>
+    <a href="/" class="btn btn-primary">Volver</a>
+</div>
+{% else %}
+    {% for result in results %}
+    <div class="card result-item">
+        <h3>
+            {% if result.algorithm == 'greedy' %}
+                <span style="color: #2ecc71;">●</span> Algoritmo Voraz (Greedy)
+            {% elif result.algorithm == 'dp' %}
+                <span style="color: #3498db;">●</span> Programación Dinámica
+            {% elif result.algorithm == 'backtracking' %}
+                <span style="color: #e74c3c;">●</span> Backtracking
+            {% endif %}
+
+            {% if result.optimal %}
+                <span class="badge badge-success">Óptimo</span>
+            {% else %}
+                <span class="badge badge-danger">No óptimo</span>
+            {% endif %}
+        </h3>
+
+        <p>
+            <strong>Monedas usadas:</strong>
+            {% if result.coins_used %}
+                {{ result.coins_used | join(', ') }}
+            {% else %}
+                <em>No se encontró solución</em>
+            {% endif %}
+            <br>
+            <strong>Cantidad:</strong> {{ result.count }}
+            <br>
+            <strong>Tiempo:</strong> {{ "%.4f"|format(result.time_ms) }} ms
+        </p>
+
+        {% if result.details %}
+            {% if result.details.steps %}
+            <details style="margin-top: 0.8rem;">
+                <summary style="cursor: pointer; font-weight: 600; color: var(--secondary);">
+                    Ver pasos del algoritmo
+                </summary>
+                <ol class="steps-list" style="margin-top: 0.5rem;">
+                    {% for step in result.details.steps %}
+                    <li>
+                        Moneda <strong>{{ step.coin }}</strong>
+                        &times; {{ step.times_used }}
+                        (restante: {{ step.remaining_before }} &rarr; {{ step.remaining_after }})
+                    </li>
+                    {% endfor %}
+                </ol>
+            </details>
+            {% endif %}
+
+            {% if result.details.dp_table %}
+            <details style="margin-top: 0.8rem;">
+                <summary style="cursor: pointer; font-weight: 600; color: var(--secondary);">
+                    Ver tabla de Programación Dinámica
+                </summary>
+                <div class="table-wrapper" style="margin-top: 0.5rem; max-height: 400px; overflow-y: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Monto (i)</th>
+                                <th>Mínimo monedas (dp[i])</th>
+                                <th>Moneda usada</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in result.details.dp_table %}
+                            <tr>
+                                <td>{{ row.amount }}</td>
+                                <td>
+                                    {% if row.min_coins == -1 %}
+                                        &infin;
+                                    {% else %}
+                                        {{ row.min_coins }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if row.coin_used %}
+                                        {{ row.coin_used }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+            {% endif %}
+
+            {% if result.details.nodes_explored is not none %}
+            <details style="margin-top: 0.8rem;">
+                <summary style="cursor: pointer; font-weight: 600; color: var(--secondary);">
+                    Ver estadísticas de Backtracking
+                </summary>
+                <ul class="steps-list" style="margin-top: 0.5rem;">
+                    <li><strong>Nodos explorados:</strong> {{ result.details.nodes_explored }}</li>
+                    <li><strong>Llamadas recursivas:</strong> {{ result.details.recursive_calls }}</li>
+                </ul>
+            </details>
+            {% endif %}
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <div style="text-align: center; margin: 1rem 0;">
+        <a href="/" class="btn btn-primary">Nueva consulta</a>
+        <a href="/analysis" class="btn btn-success">Ver análisis comparativo</a>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Problema del Cambio de Moneda</h2>
+    <p>
+        Encuentra la mínima cantidad de monedas necesarias para formar un valor exacto
+        utilizando un conjunto determinado de denominaciones. Resuelve el problema usando
+        tres enfoques algorítmicos diferentes y compara sus resultados.
+    </p>
+</div>
+
+<div class="card">
+    <h2>Resolver</h2>
+    <form action="/solve" method="post">
+        <div class="form-group">
+            <label for="coin_system">Sistema de monedas predefinido</label>
+            <select id="coin_system" onchange="updateCoins()">
+                <option value="">-- Personalizado --</option>
+                {% for system in coin_systems %}
+                <option value="{{ system.denominations | join(',') }}"
+                        data-canonical="{{ system.canonical | lower }}">
+                    {{ system.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="coins">Denominaciones (separadas por coma)</label>
+            <input type="text" id="coins" name="coins"
+                   value="1,5,6" placeholder="Ej: 1,5,10,25"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label for="amount">Monto objetivo</label>
+            <input type="number" id="amount" name="amount"
+                   value="11" min="0" max="9999" required>
+        </div>
+
+        <div class="form-group">
+            <label>Algoritmos a ejecutar</label>
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" name="algorithms" value="greedy" checked>
+                    Voraz (Greedy)
+                </label>
+                <label>
+                    <input type="checkbox" name="algorithms" value="dp" checked>
+                    Programación Dinámica
+                </label>
+                <label>
+                    <input type="checkbox" name="algorithms" value="backtracking" checked>
+                    Backtracking
+                </label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Resolver</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Paradigmas implementados</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+        <div class="result-item">
+            <h3 style="color: #2ecc71;">Voraz (Greedy)</h3>
+            <p><strong>Complejidad:</strong> O(n)</p>
+            <p><strong>Óptimo:</strong> <span class="badge badge-warning">No siempre</span></p>
+            <p>Selecciona siempre la moneda de mayor valor posible. Rápido pero no garantiza el óptimo en sistemas no canónicos.</p>
+        </div>
+        <div class="result-item">
+            <h3 style="color: #3498db;">Programación Dinámica</h3>
+            <p><strong>Complejidad:</strong> O(m × n)</p>
+            <p><strong>Óptimo:</strong> <span class="badge badge-success">Siempre</span></p>
+            <p>Divide el problema en subproblemas y almacena resultados en una tabla. Balance ideal entre eficiencia y optimalidad.</p>
+        </div>
+        <div class="result-item">
+            <h3 style="color: #e74c3c;">Backtracking</h3>
+            <p><strong>Complejidad:</strong> O(2<sup>n</sup>)</p>
+            <p><strong>Óptimo:</strong> <span class="badge badge-success">Siempre</span></p>
+            <p>Explora todas las combinaciones posibles. Alto costo computacional; útil solo para montos pequeños.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateCoins() {
+    const select = document.getElementById('coin_system');
+    const coinsInput = document.getElementById('coins');
+    if (select.value) {
+        coinsInput.value = select.value;
+    }
+}
+</script>
+{% endblock %}
