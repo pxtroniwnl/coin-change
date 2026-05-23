@@ -126,6 +126,7 @@ async def solve(
                 details = {
                     'steps': result.steps,  # ya son dicts, no hay que re-mapear
                 }
+                
                 results.append({
                     'algorithm': 'greedy',
                     'coins_used': result.coins_used,
@@ -202,6 +203,23 @@ async def solve(
                 'time_ms': -1,
                 'details': {'error': str(e)},
             })
+
+    # Verificar optimalidad real del Greedy comparando con DP
+    greedy_r = next((r for r in results if r['algorithm'] == 'greedy'), None)
+    dp_r = next((r for r in results if r['algorithm'] == 'dp'), None)
+
+    if greedy_r:
+        if dp_r:
+            # DP ya corrió — comparar directamente
+            greedy_r['optimal'] = (
+                greedy_r['count'] == dp_r['count'] and greedy_r['count'] > 0
+            )
+        else:
+            # DP no fue seleccionado — correrlo solo para verificar
+            dp_check = coin_change_dp(coins_list, amount)
+            greedy_r['optimal'] = (
+                greedy_r['count'] == dp_check.count and greedy_r['count'] > 0
+            )
 
     # Ordenar resultados: greedy, dp, backtracking
     order = {'greedy': 0, 'dp': 1, 'backtracking': 2}
