@@ -124,16 +124,7 @@ async def solve(
             if alg == 'greedy':
                 result = coin_change_greedy(coins_list, amount)
                 details = {
-                    'steps': [
-                        {
-                            'coin': s.coin,
-                            'times_used': s.times_used,
-                            'remaining_before': s.remaining_before,
-                            'remaining_after': s.remaining_after,
-                            'total_coins_so_far': s.total_coins_so_far,
-                        }
-                        for s in result.steps
-                    ],
+                    'steps': result.steps,  # ya son dicts, no hay que re-mapear
                 }
                 results.append({
                     'algorithm': 'greedy',
@@ -159,19 +150,36 @@ async def solve(
                 })
 
             elif alg == 'backtracking':
-                result = coin_change_backtracking(coins_list, amount)
-                details = {
-                    'nodes_explored': result.nodes_explored,
-                    'recursive_calls': result.recursive_calls,
-                }
-                results.append({
-                    'algorithm': 'backtracking',
-                    'coins_used': result.coins_used,
-                    'count': result.count,
-                    'optimal': result.optimal,
-                    'time_ms': (time.perf_counter() - start) * 1000,
-                    'details': details,
-                })
+                BACKTRACKING_LIMIT = 60
+                if amount > BACKTRACKING_LIMIT:
+                    results.append({
+                        'algorithm': 'backtracking',
+                        'coins_used': [],
+                        'count': 0,
+                        'optimal': False,
+                        'time_ms': -1,
+                        'details': {
+                            'error': (
+                                f'Monto {amount} supera el límite seguro para Backtracking '
+                                f'(máx. {BACKTRACKING_LIMIT}). Su complejidad O(2ⁿ) haría '
+                                f'el servidor no responder. Usa Programación Dinámica para montos grandes.'
+                            )
+                        },
+                    })
+                else:
+                    result = coin_change_backtracking(coins_list, amount)
+                    details = {
+                        'nodes_explored': result.nodes_explored,
+                        'recursive_calls': result.recursive_calls,
+                    }
+                    results.append({
+                        'algorithm': 'backtracking',
+                        'coins_used': result.coins_used,
+                        'count': result.count,
+                        'optimal': result.optimal,
+                        'time_ms': (time.perf_counter() - start) * 1000,
+                        'details': details,
+                    })
 
         except RecursionError:
             results.append({
@@ -273,6 +281,7 @@ async def run_analysis_page(
             'points': analysis_result['points'],
             'graph_path': analysis_result['graph_path'],
             'coins_used_graph_path': analysis_result['coins_used_graph_path'],
+            'memory_graph_path': analysis_result['memory_graph_path'],
             'error': None,
         },
     )

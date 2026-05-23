@@ -6,10 +6,12 @@ con montos crecientes y genera gráficos comparativos de rendimiento.
 Dependencies:
     matplotlib: Para la generación de gráficos.
     time: Para medición precisa de tiempos de ejecución.
+    tracemalloc: Para medición de uso de memoria.
 """
 
 import os
 import time
+import tracemalloc
 from typing import Any
 
 import matplotlib
@@ -39,7 +41,7 @@ def _measure_time(
     amount: int,
     timeout: float = 10.0,
 ) -> dict[str, Any]:
-    """Mide el tiempo de ejecución de un algoritmo para un monto dado.
+    """Mide el tiempo de ejecución y el uso de memoria pico de un algoritmo.
 
     Args:
         algorithm: Nombre del algoritmo ('greedy', 'dp', 'backtracking').
@@ -48,8 +50,9 @@ def _measure_time(
         timeout: Tiempo máximo de ejecución en segundos.
 
     Returns:
-        Diccionario con resultado, tiempo y cantidad de monedas usadas.
+        Diccionario con resultado, tiempo, cantidad de monedas y memoria pico en KB.
     """
+    tracemalloc.start()
     start = time.perf_counter()
 
     if algorithm == 'greedy':
@@ -64,12 +67,16 @@ def _measure_time(
     else:
         raise ValueError(f'Algoritmo desconocido: {algorithm}')
 
-    elapsed = (time.perf_counter() - start) * 1000  # convertir a ms
+    elapsed = (time.perf_counter() - start) * 1000  # ms
+    _, peak_bytes = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+
+    peak_kb = peak_bytes / 1024  # convertir a KB
 
     if elapsed > timeout * 1000:
-        return {'coins_used': -1, 'time_ms': elapsed, 'timed_out': True}
+        return {'coins_used': -1, 'time_ms': elapsed, 'memory_kb': peak_kb, 'timed_out': True}
 
-    return {'coins_used': coins_used, 'time_ms': elapsed, 'timed_out': False}
+    return {'coins_used': coins_used, 'time_ms': elapsed, 'memory_kb': peak_kb, 'timed_out': False}
 
 
 def run_analysis(
@@ -93,12 +100,10 @@ def run_analysis(
 
     points: list[dict[str, Any]] = []
 
-    # Montos para greedy y DP (todos hasta max_amount)
     amounts_full = list(range(0, max_amount + 1, 5))
     if amounts_full[-1] != max_amount:
         amounts_full.append(max_amount)
 
-    # Backtracking solo hasta un límite seguro (evita timeouts)
     bt_limit = min(60, max_amount)
     amounts_bt = list(range(0, bt_limit + 1, 5))
     if amounts_bt[-1] != bt_limit:
@@ -113,6 +118,7 @@ def run_analysis(
                 'algorithm': alg,
                 'time_ms': data['time_ms'],
                 'coins_used': data['coins_used'],
+                'memory_kb': data['memory_kb'],
             })
 
     # Recolectar datos para Backtracking
@@ -123,16 +129,19 @@ def run_analysis(
             'algorithm': 'backtracking',
             'time_ms': data['time_ms'],
             'coins_used': data['coins_used'],
+            'memory_kb': data['memory_kb'],
         })
 
     # Generar gráficos
     time_graph = _generate_time_graph(points, coins)
     coins_graph = _generate_coins_graph(points, coins)
+    memory_graph = _generate_memory_graph(points, coins)
 
     return {
         'points': points,
         'graph_path': time_graph,
         'coins_used_graph_path': coins_graph,
+        'memory_graph_path': memory_graph,
     }
 
 
@@ -140,22 +149,10 @@ def _generate_time_graph(
     points: list[dict[str, Any]],
     coins: list[int],
 ) -> str:
-    """Genera gráfico de tiempo de ejecución vs monto.
-
-    Args:
-        points: Datos del análisis.
-        coins: Denominaciones usadas (para el título).
-
-    Returns:
-        Ruta relativa al archivo de imagen generado.
-    """
+    """Genera gráfico de tiempo de ejecución vs monto."""
     fig, ax = plt.subplots()
 
-    colors = {
-        'greedy': '#2ecc71',
-        'dp': '#3498db',
-        'backtracking': '#e74c3c',
-    }
+    colors = {'greedy': '#2ecc71', 'dp': '#3498db', 'backtracking': '#e74c3c'}
     markers = {'greedy': 'o', 'dp': 's', 'backtracking': '^'}
     labels = {
         'greedy': 'Voraz (Greedy)',
@@ -164,22 +161,14 @@ def _generate_time_graph(
     }
 
     for alg in ['greedy', 'dp', 'backtracking']:
-        alg_points = [
-            p for p in points
-            if p['algorithm'] == alg and not p.get('timed_out')
-        ]
+        alg_points = [p for p in points if p['algorithm'] == alg and not p.get('timed_out')]
         if not alg_points:
             continue
-        amounts = [p['amount'] for p in alg_points]
-        times = [p['time_ms'] for p in alg_points]
         ax.plot(
-            amounts,
-            times,
-            color=colors[alg],
-            marker=markers[alg],
-            label=labels[alg],
-            linewidth=2,
-            markersize=4,
+            [p['amount'] for p in alg_points],
+            [p['time_ms'] for p in alg_points],
+            color=colors[alg], marker=markers[alg], label=labels[alg],
+            linewidth=2, markersize=4,
         )
 
     ax.set_xlabel('Monto objetivo')
@@ -188,11 +177,10 @@ def _generate_time_graph(
     ax.legend()
     ax.grid(True, alpha=0.3)
 
-    time_path = os.path.join(GRAPHS_DIR, 'time_analysis.png')
+    path = os.path.join(GRAPHS_DIR, 'time_analysis.png')
     plt.tight_layout()
-    fig.savefig(time_path, dpi=150, bbox_inches='tight')
+    fig.savefig(path, dpi=150, bbox_inches='tight')
     plt.close(fig)
-
     return 'static/graphs/time_analysis.png'
 
 
@@ -200,22 +188,10 @@ def _generate_coins_graph(
     points: list[dict[str, Any]],
     coins: list[int],
 ) -> str:
-    """Genera gráfico de cantidad de monedas usadas vs monto.
-
-    Args:
-        points: Datos del análisis.
-        coins: Denominaciones usadas (para el título).
-
-    Returns:
-        Ruta relativa al archivo de imagen generado.
-    """
+    """Genera gráfico de cantidad de monedas usadas vs monto."""
     fig, ax = plt.subplots()
 
-    colors = {
-        'greedy': '#2ecc71',
-        'dp': '#3498db',
-        'backtracking': '#e74c3c',
-    }
+    colors = {'greedy': '#2ecc71', 'dp': '#3498db', 'backtracking': '#e74c3c'}
     markers = {'greedy': 'o', 'dp': 's', 'backtracking': '^'}
     labels = {
         'greedy': 'Voraz (Greedy)',
@@ -224,22 +200,14 @@ def _generate_coins_graph(
     }
 
     for alg in ['greedy', 'dp', 'backtracking']:
-        alg_points = [
-            p for p in points
-            if p['algorithm'] == alg and p['coins_used'] >= 0
-        ]
+        alg_points = [p for p in points if p['algorithm'] == alg and p['coins_used'] >= 0]
         if not alg_points:
             continue
-        amounts = [p['amount'] for p in alg_points]
-        coins_count = [p['coins_used'] for p in alg_points]
         ax.plot(
-            amounts,
-            coins_count,
-            color=colors[alg],
-            marker=markers[alg],
-            label=labels[alg],
-            linewidth=2,
-            markersize=4,
+            [p['amount'] for p in alg_points],
+            [p['coins_used'] for p in alg_points],
+            color=colors[alg], marker=markers[alg], label=labels[alg],
+            linewidth=2, markersize=4,
         )
 
     ax.set_xlabel('Monto objetivo')
@@ -248,9 +216,72 @@ def _generate_coins_graph(
     ax.legend()
     ax.grid(True, alpha=0.3)
 
-    coins_path = os.path.join(GRAPHS_DIR, 'coins_analysis.png')
+    path = os.path.join(GRAPHS_DIR, 'coins_analysis.png')
     plt.tight_layout()
-    fig.savefig(coins_path, dpi=150, bbox_inches='tight')
+    fig.savefig(path, dpi=150, bbox_inches='tight')
     plt.close(fig)
-
     return 'static/graphs/coins_analysis.png'
+
+
+def _generate_memory_graph(
+    points: list[dict[str, Any]],
+    coins: list[int],
+) -> str:
+    """Genera gráfico de uso de memoria pico vs monto.
+
+    Muestra la diferencia entre:
+        - Greedy:       O(1) — variables simples, casi sin memoria extra.
+        - DP:           O(m) — arreglo dp[] de tamaño (monto + 1).
+        - Backtracking: O(profundidad) — pila de recursión.
+
+    Args:
+        points: Datos del análisis, cada punto incluye 'memory_kb'.
+        coins: Denominaciones usadas (para el título).
+
+    Returns:
+        Ruta relativa al archivo de imagen generado.
+    """
+    fig, ax = plt.subplots()
+
+    colors = {'greedy': '#2ecc71', 'dp': '#3498db', 'backtracking': '#e74c3c'}
+    markers = {'greedy': 'o', 'dp': 's', 'backtracking': '^'}
+    labels = {
+        'greedy': 'Voraz — O(1) variables simples',
+        'dp': 'Prog. Dinámica — O(m) arreglo dp[]',
+        'backtracking': 'Backtracking — O(prof.) pila recursión',
+    }
+
+    for alg in ['greedy', 'dp', 'backtracking']:
+        alg_points = [p for p in points if p['algorithm'] == alg and not p.get('timed_out')]
+        if not alg_points:
+            continue
+        ax.plot(
+            [p['amount'] for p in alg_points],
+            [p['memory_kb'] for p in alg_points],
+            color=colors[alg], marker=markers[alg], label=labels[alg],
+            linewidth=2, markersize=4,
+        )
+
+    ax.set_xlabel('Monto objetivo')
+    ax.set_ylabel('Memoria pico (KB)')
+    ax.set_title(f'Uso de memoria pico vs Monto objetivo (monedas: {coins})')
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+
+    # Anotación explicativa dentro del gráfico
+    ax.annotate(
+        'DP crece linealmente con el monto\n'
+        'Backtracking crece con la profundidad de recursión\n'
+        'Greedy permanece casi constante',
+        xy=(0.02, 0.97),
+        xycoords='axes fraction',
+        fontsize=9,
+        verticalalignment='top',
+        bbox=dict(boxstyle='round,pad=0.4', facecolor='#f8f8f8', alpha=0.7),
+    )
+
+    path = os.path.join(GRAPHS_DIR, 'memory_analysis.png')
+    plt.tight_layout()
+    fig.savefig(path, dpi=150, bbox_inches='tight')
+    plt.close(fig)
+    return 'static/graphs/memory_analysis.png'

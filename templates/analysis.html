@@ -58,6 +58,19 @@
 </div>
 {% endif %}
 
+{% if memory_graph_path %}
+<div class="card">
+    <h2>Uso de memoria pico vs Monto objetivo</h2>
+    <p style="font-size:0.9rem; color:var(--muted); margin-bottom:0.75rem;">
+        Memoria RAM máxima consumida por cada algoritmo medida con <code>tracemalloc</code>.
+        Refleja la complejidad espacial real: Greedy ≈ O(1) · DP ≈ O(m) · Backtracking ≈ O(profundidad de pila).
+    </p>
+    <div class="graph-container">
+        <img src="/{{ memory_graph_path }}" alt="Gráfico de uso de memoria">
+    </div>
+</div>
+{% endif %}
+
 {% if points %}
 <div class="card">
     <h2>Datos del análisis</h2>
@@ -69,6 +82,7 @@
                     <th>Algoritmo</th>
                     <th>Tiempo (ms)</th>
                     <th>Monedas usadas</th>
+                    <th>Memoria pico (KB)</th>
                 </tr>
             </thead>
             <tbody>
@@ -89,6 +103,7 @@
                             <em style="color:var(--muted)">Timeout</em>
                         {% endif %}
                     </td>
+                    <td>{{ "%.2f"|format(point.memory_kb) }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
