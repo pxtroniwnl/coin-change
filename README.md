@@ -127,6 +127,8 @@ Para detener el servidor, presiona `Ctrl + C` en la terminal.
 4. **Algoritmos** — Marca cuáles algoritmos quieres ejecutar (puedes seleccionar uno, dos o los tres).
 5. Haz clic en **Resolver** para ver los resultados.
 
+> **Nota:** El backtracking en esta página está limitado a montos ≤ 60. Si ingresas un monto mayor con backtracking activado, se mostrará un mensaje de error explicativo y los demás algoritmos seguirán funcionando con normalidad.
+
 **En la página de resultados** podrás ver para cada algoritmo:
 - Las monedas utilizadas (mostradas como chips visuales)
 - La cantidad total de monedas
@@ -139,10 +141,11 @@ Para detener el servidor, presiona `Ctrl + C` en la terminal.
 1. Ingresa las denominaciones y el monto máximo a evaluar.
 2. Haz clic en **Ejecutar análisis**.
 3. La aplicación correrá los tres algoritmos para todos los montos desde 0 hasta el máximo elegido.
-4. Se generan dos gráficos comparativos:
+4. Se generan tres gráficos comparativos:
    - **Tiempo de ejecución vs. Monto** — para comparar velocidad
    - **Cantidad de monedas vs. Monto** — para comparar calidad de solución
-5. También verás la tabla completa de datos y las conclusiones del análisis.
+   - **Memoria pico vs. Monto** — para comparar uso de memoria RAM real (medido con `tracemalloc`)
+5. También verás la tabla completa de datos (tiempo, monedas usadas y memoria pico en KB) y las conclusiones del análisis.
 
 > **Nota:** El backtracking se limita automáticamente a montos ≤ 60 para evitar tiempos de espera excesivos.
 
@@ -220,7 +223,11 @@ Complejidad espacial:  O(1)
 Solución óptima:       No garantizada (falla en sistemas no canónicos)
 ```
 
-**Cuándo falla:** Con monedas `[1, 5, 6]` y monto `11`, el greedy devuelve `[6, 4×1]` = 5 monedas... no, en realidad devuelve `[6, 5]`... perdón, devuelve `[6, 1, 1, 1, 1, 1]` = 6 monedas? no — devuelve `[5, 5, 1]` = 3 monedas, mientras el óptimo es `[6, 5]` = 2 monedas.
+**Cuándo falla:** El Greedy falla cuando elegir la moneda más grande bloquea combinaciones más eficientes. Ejemplos concretos con los sistemas no canónicos incluidos:
+
+- `[1, 5, 6]` con monto `10` → Greedy: `6+1+1+1+1` = 5 monedas · Óptimo: `5+5` = 2 monedas
+- `[1, 3, 4]` con monto `6` → Greedy: `4+1+1` = 3 monedas · Óptimo: `3+3` = 2 monedas
+- `[1, 12, 20, 25]` con monto `40` → Greedy: `25+12+1+1+1` = 5 monedas · Óptimo: `20+20` = 2 monedas
 
 ### 2. Programación Dinámica (Bottom-Up) — `src/dynamic_programming.py`
 
@@ -228,7 +235,7 @@ Construye una tabla `dp[]` donde `dp[i]` = mínima cantidad de monedas para el m
 
 ```
 Complejidad temporal:  O(m × n)   donde m = monto, n = denominaciones
-Complejidad espacial:  O(m)
+Complejidad espacial:  O(m)       arreglo dp[] de tamaño (monto + 1)
 Solución óptima:       Siempre garantizada
 ```
 
@@ -238,7 +245,7 @@ Explora recursivamente todas las combinaciones posibles de monedas. Utiliza poda
 
 ```
 Complejidad temporal:  O(2ⁿ) en el peor caso
-Complejidad espacial:  O(n)  pila de recursión
+Complejidad espacial:  O(profundidad)  pila de recursión
 Solución óptima:       Siempre garantizada
 Límite práctico:       Montos ≤ 60
 ```
@@ -250,12 +257,12 @@ Límite práctico:       Montos ≤ 60
 | Aspecto | Voraz (Greedy) | Programación Dinámica | Backtracking |
 |---------|---------------|----------------------|--------------|
 | **Velocidad** | Más rápido | Rápido | Muy lento |
-| **Memoria** | Mínima · O(1) | Moderada · O(m) | Alta · pila recursión |
+| **Memoria** | O(1) · constante | O(m) · arreglo dp[] | O(prof.) · pila recursión |
 | **Siempre óptimo** | No | Sí | Sí |
 | **Escala bien** | Sí | Sí | No (montos grandes) |
 | **Recomendado para** | Sistemas canónicos, tiempo crítico | Uso general | Fines educativos |
 
-**Conclusión esperada:** El greedy es el más rápido pero puede fallar. La programación dinámica es la solución más robusta para uso general. El backtracking es valioso para entender la complejidad exponencial, pero inviable para montos grandes.
+**Conclusión esperada:** El Greedy es el más rápido y usa mínima memoria, pero puede fallar en sistemas no canónicos. La Programación Dinámica es la solución más robusta para uso general, aunque usa más memoria al mantener el arreglo `dp[]` completo. El Backtracking garantiza el óptimo explorando todas las combinaciones, pero su costo exponencial en tiempo y su pila de recursión lo hacen inviable para montos grandes.
 
 ---
 
@@ -272,7 +279,7 @@ coin-change/
 │   ├── greedy.py               # Algoritmo Voraz → GreedyResult
 │   ├── dynamic_programming.py  # Programación Dinámica → DPResult
 │   ├── backtracking.py         # Backtracking → BacktrackingResult
-│   └── analysis.py             # Benchmarking y generación de gráficos Matplotlib
+│   └── analysis.py             # Benchmarking, medición de memoria y generación de gráficos
 │
 ├── templates/                  # Plantillas HTML (Jinja2)
 │   ├── base.html               # Estructura base: navbar, footer, fuentes
@@ -283,6 +290,9 @@ coin-change/
 ├── static/
 │   ├── css/style.css           # Todos los estilos (tema dark indie)
 │   └── graphs/                 # Gráficos PNG generados por Matplotlib
+│       ├── time_analysis.png       # Tiempo de ejecución vs Monto
+│       ├── coins_analysis.png      # Cantidad de monedas vs Monto
+│       └── memory_analysis.png     # Memoria pico vs Monto
 │
 └── tests/                      # Tests unitarios con Pytest
     ├── test_greedy.py
@@ -296,14 +306,14 @@ coin-change/
 
 La aplicación incluye estos sistemas predefinidos:
 
-| Sistema | Denominaciones | Tipo |
-|---------|---------------|------|
-| USD (Dólar) | 1, 5, 10, 25, 50 | Canónico |
-| EUR (Euro) | 1, 2, 5, 10, 20, 50, 100, 200 | Canónico |
-| COP (Peso colombiano) | 50, 100, 200, 500, 1000 | Canónico |
-| No canónico #1 | 1, 5, 6 | No canónico |
-| No canónico #2 | 1, 3, 4 | No canónico |
-| No canónico #3 | 1, 12, 20, 25 | No canónico |
+| Sistema | Denominaciones | Tipo | Greedy falla en |
+|---------|---------------|------|-----------------|
+| USD (Dólar) | 1, 5, 10, 25, 50 | Canónico | — |
+| EUR (Euro) | 1, 2, 5, 10, 20, 50, 100, 200 | Canónico | — |
+| COP (Peso colombiano) | 50, 100, 200, 500, 1000 | Canónico | — |
+| No canónico #1 | 1, 5, 6 | No canónico | monto `10` → da 5 monedas, óptimo 2 |
+| No canónico #2 | 1, 3, 4 | No canónico | monto `6` → da 3 monedas, óptimo 2 |
+| No canónico #3 | 1, 12, 20, 25 | No canónico | monto `40` → da 5 monedas, óptimo 2 |
 
 Los sistemas **no canónicos** son los más interesantes para el análisis porque demuestran dónde falla el algoritmo Greedy.
 
@@ -323,8 +333,8 @@ Usa `python3` en lugar de `python`, o verifica que Python esté en el PATH del s
 **Los gráficos no se muestran después del análisis**  
 Asegúrate de que el directorio `static/graphs/` exista. Puedes crearlo manualmente: `mkdir -p static/graphs`.
 
-**El backtracking tarda demasiado**  
-Es normal para montos mayores a 60. La página de análisis lo limita automáticamente a ≤ 60. En la página principal, evita montos grandes con backtracking activado.
+**El backtracking tarda demasiado o muestra error de límite**  
+Es normal para montos mayores a 60. La página de análisis y la página principal limitan backtracking a ≤ 60 automáticamente. Para montos grandes usa Programación Dinámica.
 
 ---
 
@@ -336,5 +346,6 @@ Es normal para montos mayores a 60. La página de análisis lo limita automátic
 - **Jinja2** — Motor de plantillas HTML
 - **Pydantic v2** — Validación y serialización de datos
 - **Matplotlib** — Generación de gráficos de benchmarking
+- **tracemalloc** — Medición de uso de memoria en tiempo de ejecución (stdlib)
 - **Pytest** — Tests unitarios
 - **Google Fonts** — Tipografías: Syne, JetBrains Mono, Inter
