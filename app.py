@@ -14,6 +14,7 @@ Endpoints:
 
 import time
 from pathlib import Path
+from urllib.parse import urlencode
 
 import jinja2
 from fastapi import FastAPI, Form, Request
@@ -48,6 +49,79 @@ jinja_env = jinja2.Environment(
     cache_size=0,
 )
 templates = Jinja2Templates(env=jinja_env)
+
+
+def parse_coins(coins: str) -> list[int]:
+    """Convierte y valida denominaciones separadas por coma."""
+    coins_list = sorted([int(c.strip()) for c in coins.split(',') if c.strip()])
+    if not coins_list:
+        raise ValueError('Debe proporcionar al menos una denominación.')
+    if min(coins_list) <= 0:
+        raise ValueError('Las denominaciones deben ser enteros positivos.')
+    return coins_list
+
+
+def is_greedy_optimal(
+    greedy_count: int,
+    greedy_coins: list[int],
+    dp_count: int,
+    dp_coins: list[int],
+    amount: int,
+) -> bool:
+    """Determina si Greedy igualo la solucion optima de DP."""
+    if amount == 0:
+        return True
+    return bool(greedy_coins) and bool(dp_coins) and greedy_count == dp_count
+
+
+def build_analysis_context(
+    request: Request,
+    coins: str | None = None,
+    max_amount: int | None = None,
+    error: str | None = None,
+) -> dict:
+    """Crea el contexto de la pagina de analisis, con datos si hay configuracion."""
+    context = {
+        'request': request,
+        'points': None,
+        'graph_path': None,
+        'coins_used_graph_path': None,
+        'memory_graph_path': None,
+        'greedy_gap_graph_path': None,
+        'summary': None,
+        'complexity_table': None,
+        'greedy_gap_summary': None,
+        'request_coins': coins,
+        'max_amount': max_amount,
+        'error': error,
+    }
+
+    if not coins or error:
+        return context
+
+    try:
+        coins_list = parse_coins(coins)
+        analysis_max_amount = max_amount if max_amount is not None else 200
+        if analysis_max_amount < 0:
+            raise ValueError('El monto máximo debe ser un entero no negativo.')
+    except ValueError as exc:
+        context['error'] = str(exc)
+        return context
+
+    analysis_result = run_analysis(coins_list, analysis_max_amount)
+    context.update({
+        'points': analysis_result['points'],
+        'graph_path': analysis_result['graph_path'],
+        'coins_used_graph_path': analysis_result['coins_used_graph_path'],
+        'memory_graph_path': analysis_result['memory_graph_path'],
+        'greedy_gap_graph_path': analysis_result['greedy_gap_graph_path'],
+        'summary': analysis_result['summary'],
+        'complexity_table': analysis_result['complexity_table'],
+        'greedy_gap_summary': analysis_result['greedy_gap_summary'],
+        'request_coins': ','.join(str(c) for c in coins_list),
+        'max_amount': analysis_max_amount,
+    })
+    return context
 
 
 # ---------------------------------------------------------------------------
@@ -94,11 +168,12 @@ async def solve(
                 'amount': amount,
                 'request_coins': coins,
                 'results': [],
+                'analysis_url': None,
             },
         )
 
     try:
-        coins_list = sorted([int(c.strip()) for c in coins.split(',') if c.strip()])
+        coins_list = parse_coins(coins)
         if not coins_list:
             raise ValueError('Debe proporcionar al menos una denominación.')
         if min(coins_list) <= 0:
@@ -112,6 +187,7 @@ async def solve(
                 'amount': amount,
                 'request_coins': coins,
                 'results': [],
+                'analysis_url': None,
             },
         )
 
@@ -211,19 +287,31 @@ async def solve(
     if greedy_r:
         if dp_r:
             # DP ya corrió — comparar directamente
-            greedy_r['optimal'] = (
-                greedy_r['count'] == dp_r['count'] and greedy_r['count'] > 0
+            greedy_r['optimal'] = is_greedy_optimal(
+                greedy_r['count'],
+                greedy_r['coins_used'],
+                dp_r['count'],
+                dp_r['coins_used'],
+                amount,
             )
         else:
             # DP no fue seleccionado — correrlo solo para verificar
             dp_check = coin_change_dp(coins_list, amount)
-            greedy_r['optimal'] = (
-                greedy_r['count'] == dp_check.count and greedy_r['count'] > 0
+            greedy_r['optimal'] = is_greedy_optimal(
+                greedy_r['count'],
+                greedy_r['coins_used'],
+                dp_check.count,
+                dp_check.coins_used,
+                amount,
             )
 
     # Ordenar resultados: greedy, dp, backtracking
     order = {'greedy': 0, 'dp': 1, 'backtracking': 2}
     results.sort(key=lambda r: order.get(r['algorithm'], 99))
+    analysis_url = '/analysis?' + urlencode({
+        'coins': ','.join(str(c) for c in coins_list),
+        'max_amount': amount,
+    })
 
     return templates.TemplateResponse(
         request,
@@ -232,13 +320,18 @@ async def solve(
             'amount': amount,
             'request_coins': coins,
             'results': results,
+            'analysis_url': analysis_url,
             'error': None,
         },
     )
 
 
 @app.get('/analysis', response_class=HTMLResponse, include_in_schema=False)
-async def analysis_page(request: Request):
+async def analysis_page(
+    request: Request,
+    coins: str | None = None,
+    max_amount: int | None = None,
+):
     """Página de análisis comparativo (sin datos iniciales).
 
     Args:
@@ -250,11 +343,7 @@ async def analysis_page(request: Request):
     return templates.TemplateResponse(
         request,
         'analysis.html',
-        {
-            'points': None,
-            'graph_path': None,
-            'coins_used_graph_path': None,
-        },
+        build_analysis_context(request, coins=coins, max_amount=max_amount),
     )
 
 
@@ -275,7 +364,7 @@ async def run_analysis_page(
         Página HTML con gráficos y tabla de datos.
     """
     try:
-        coins_list = sorted([int(c.strip()) for c in coins.split(',') if c.strip()])
+        coins_list = parse_coins(coins)
         if not coins_list:
             raise ValueError('Debe proporcionar al menos una denominación.')
     except ValueError as e:
@@ -290,18 +379,12 @@ async def run_analysis_page(
             },
         )
 
-    analysis_result = run_analysis(coins_list, max_amount)
+    analysis_context = build_analysis_context(request, coins=coins, max_amount=max_amount)
 
     return templates.TemplateResponse(
         request,
         'analysis.html',
-        {
-            'points': analysis_result['points'],
-            'graph_path': analysis_result['graph_path'],
-            'coins_used_graph_path': analysis_result['coins_used_graph_path'],
-            'memory_graph_path': analysis_result['memory_graph_path'],
-            'error': None,
-        },
+        analysis_context,
     )
 
 
@@ -326,7 +409,7 @@ async def api_solve(
         JSON con los resultados de cada algoritmo.
     """
     try:
-        coins_list = sorted([int(c.strip()) for c in coins.split(',') if c.strip()])
+        coins_list = parse_coins(coins)
         alg_list = [a.strip() for a in algorithms.split(',') if a.strip()]
 
         if not coins_list:
@@ -367,6 +450,16 @@ async def api_solve(
                     'time_ms': round((time.perf_counter() - start) * 1000, 4),
                 })
             elif alg == 'backtracking':
+                if amount > 60:
+                    results.append({
+                        'algorithm': 'backtracking',
+                        'coins_used': [],
+                        'count': 0,
+                        'optimal': False,
+                        'time_ms': -1,
+                        'error': 'Monto supera el limite seguro para Backtracking.',
+                    })
+                    continue
                 result = coin_change_backtracking(coins_list, amount)
                 results.append({
                     'algorithm': 'backtracking',
@@ -375,6 +468,28 @@ async def api_solve(
                     'optimal': result.optimal,
                     'time_ms': round((time.perf_counter() - start) * 1000, 4),
                 })
+
+        greedy_r = next((r for r in results if r['algorithm'] == 'greedy'), None)
+        dp_r = next((r for r in results if r['algorithm'] == 'dp'), None)
+
+        if greedy_r:
+            if dp_r:
+                greedy_r['optimal'] = is_greedy_optimal(
+                    greedy_r['count'],
+                    greedy_r['coins_used'],
+                    dp_r['count'],
+                    dp_r['coins_used'],
+                    amount,
+                )
+            else:
+                dp_check = coin_change_dp(coins_list, amount)
+                greedy_r['optimal'] = is_greedy_optimal(
+                    greedy_r['count'],
+                    greedy_r['coins_used'],
+                    dp_check.count,
+                    dp_check.coins_used,
+                    amount,
+                )
 
         order = {'greedy': 0, 'dp': 1, 'backtracking': 2}
         results.sort(key=lambda r: order.get(r['algorithm'], 99))
@@ -385,6 +500,11 @@ async def api_solve(
             'results': results,
         }
 
+    except ValueError as e:
+        return JSONResponse(
+            status_code=400,
+            content={'error': str(e)},
+        )
     except Exception as e:
         return JSONResponse(
             status_code=500,

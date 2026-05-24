@@ -156,8 +156,9 @@
 
 <div class="btn-group" style="margin-top:1.5rem;">
     <a href="/" class="btn btn-secondary">&#9664; Nueva consulta</a>
-    <a href="/analysis" class="btn btn-success">&#9654; Ver análisis</a>
+    <a href="{{ analysis_url or '/analysis' }}" class="btn btn-success">&#9654; Ver análisis</a>
 </div>
 
 {% endif %}
 {% endblock %}
+

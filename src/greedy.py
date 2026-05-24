@@ -9,8 +9,8 @@ Complexity:
 
 Note:
     No garantiza la solución óptima para sistemas de monedas
-    no canónicos. Por ejemplo, con monedas [1, 5, 6] y monto 11,
-    el voraz da 5+5+1 (3 monedas), pero la óptima es 6+5 (2 monedas).
+    no canónicos. Por ejemplo, con monedas [1, 5, 6] y monto 10,
+    el voraz da 6+1+1+1+1 (5 monedas), pero la óptima es 5+5 (2 monedas).
 """
 
 from typing import NamedTuple
@@ -36,7 +36,8 @@ class GreedyResult(NamedTuple):
     Attributes:
         coins_used: Lista de monedas seleccionadas.
         count: Cantidad total de monedas usadas.
-        optimal: Siempre True si el sistema es canónico.
+        optimal: True si el algoritmo logro formar el monto exacto.
+            La aplicacion verifica la optimalidad real comparando contra DP.
         steps: Lista de pasos para visualización.
     """
 
@@ -61,11 +62,11 @@ def coin_change_greedy(coins: list[int], amount: int) -> GreedyResult:
         GreedyResult con las monedas usadas, cantidad, optimalidad y pasos.
 
     Examples:
-        >>> result = coin_change_greedy([1, 5, 6], 11)
+        >>> result = coin_change_greedy([1, 5, 6], 10)
         >>> result.coins_used
-        [5, 5, 1]
+        [6, 1, 1, 1, 1]
         >>> result.count
-        3
+        5
 
         >>> result = coin_change_greedy([1, 5, 6], 0)
         >>> result.coins_used

@@ -1,20 +1,20 @@
 {% extends "base.html" %}
-{% block title %}Análisis Comparativo{% endblock %}
+{% block title %}Analisis Comparativo{% endblock %}
 
 {% block content %}
 
 <div class="hero">
-    <div class="hero-badge">Benchmarking &nbsp;·&nbsp; Comparación de rendimiento</div>
-    <h1>Análisis <span class="highlight">Comparativo</span></h1>
+    <div class="hero-badge">Benchmarking &nbsp;&middot;&nbsp; Comparacion de rendimiento</div>
+    <h1>Analisis <span class="highlight">Comparativo</span></h1>
     <p>
-        Ejecuta los tres algoritmos con montos crecientes y genera gráficos comparativos
-        de tiempo de ejecución y calidad de solución.
+        Compara los tres algoritmos con la configuracion usada para resolver el problema:
+        tiempo de ejecucion, memoria, complejidad y calidad de la solucion.
     </p>
 </div>
 
 {% if error %}
 <div class="error-card">
-    <span class="error-icon">✗</span>
+    <span class="error-icon">&#10007;</span>
     <div>
         <h2>Error</h2>
         <p>{{ error }}</p>
@@ -22,38 +22,118 @@
 </div>
 {% endif %}
 
+{% if summary %}
 <div class="card">
-    <h2>Configurar análisis</h2>
-    <form action="/analysis" method="post">
-        <div class="form-group">
-            <label for="coins">Denominaciones (separadas por coma)</label>
-            <input type="text" id="coins" name="coins"
-                   value="1,5,10,25" placeholder="Ej: 1,5,10,25" required>
-        </div>
-        <div class="form-group">
-            <label for="max_amount">Monto máximo a evaluar</label>
-            <input type="number" id="max_amount" name="max_amount"
-                   value="200" min="10" max="500" required>
-            <small>Backtracking se prueba con montos reducidos (máx. 60) por su alto costo computacional.</small>
-        </div>
-        <button type="submit" class="btn btn-primary">&#9654; Ejecutar análisis</button>
-    </form>
-</div>
-
-{% if graph_path %}
-<div class="card">
-    <h2>Tiempo de ejecución vs Monto objetivo</h2>
-    <div class="graph-container">
-        <img src="/{{ graph_path }}" alt="Gráfico de tiempo de ejecución">
+    <h2>Configuracion analizada</h2>
+    <div class="input-summary">
+        <span><strong>Denominaciones:</strong> {{ request_coins }}</span>
+        <span><strong>Monto maximo:</strong> {{ max_amount }}</span>
+        <span><strong>Comparacion completa hasta:</strong> {{ summary.comparable_until }}</span>
     </div>
 </div>
 {% endif %}
 
-{% if coins_used_graph_path %}
+{% if not points %}
 <div class="card">
-    <h2>Cantidad de monedas vs Monto objetivo</h2>
+    <h2>Configurar analisis</h2>
+    <form action="/analysis" method="post">
+        <div class="form-group">
+            <label for="coins">Denominaciones (separadas por coma)</label>
+            <input type="text" id="coins" name="coins"
+                   value="{{ request_coins or '1,5,10,25' }}" placeholder="Ej: 1,5,10,25" required>
+        </div>
+        <div class="form-group">
+            <label for="max_amount">Monto maximo a evaluar</label>
+            <input type="number" id="max_amount" name="max_amount"
+                   value="{{ max_amount or 200 }}" min="0" max="500" required>
+            <small>Backtracking se prueba con montos reducidos (max. 60) por su alto costo computacional.</small>
+        </div>
+        <button type="submit" class="btn btn-primary">&#9654; Ejecutar analisis</button>
+    </form>
+</div>
+{% else %}
+<details>
+    <summary>Cambiar configuracion del analisis</summary>
+    <div class="card">
+        <h2>Configurar analisis</h2>
+        <form action="/analysis" method="post">
+            <div class="form-group">
+                <label for="coins_alt">Denominaciones (separadas por coma)</label>
+                <input type="text" id="coins_alt" name="coins"
+                       value="{{ request_coins }}" placeholder="Ej: 1,5,10,25" required>
+            </div>
+            <div class="form-group">
+                <label for="max_amount_alt">Monto maximo a evaluar</label>
+                <input type="number" id="max_amount_alt" name="max_amount"
+                       value="{{ max_amount }}" min="0" max="500" required>
+                <small>Backtracking se prueba con montos reducidos (max. 60) por su alto costo computacional.</small>
+            </div>
+            <button type="submit" class="btn btn-primary">&#9654; Ejecutar analisis</button>
+        </form>
+    </div>
+</details>
+{% endif %}
+
+{% if summary %}
+<div class="card">
+    <h2>Resumen comparativo</h2>
+    <div class="conclusions-grid">
+        <div class="algo-card greedy">
+            <span class="complexity">Tiempo</span>
+            <h3>Mas rapido</h3>
+            <p>{{ summary.fastest }} fue el mas rapido en promedio sobre los montos comparables: <strong>{{ "%.4f"|format(summary.fastest_time_ms) }} ms</strong>.</p>
+        </div>
+        <div class="algo-card dp">
+            <span class="complexity">Memoria</span>
+            <h3>Menor memoria</h3>
+            <p>{{ summary.lowest_memory }} uso menos memoria pico promedio: <strong>{{ "%.2f"|format(summary.lowest_memory_kb) }} KB</strong>.</p>
+        </div>
+        <div class="algo-card backtracking">
+            <span class="complexity">Uso general</span>
+            <h3>Recomendacion</h3>
+            <p>{{ summary.recommended }} es la opcion mas equilibrada porque garantiza optimalidad con costo polinomial. {{ summary.least_suitable_large_amounts }} es el menos adecuado para montos grandes.</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if complexity_table %}
+<div class="card">
+    <h2>Complejidad algoritmica</h2>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Algoritmo</th>
+                    <th>Paradigma</th>
+                    <th>Tiempo</th>
+                    <th>Espacio</th>
+                    <th>Optimo</th>
+                    <th>Observacion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in complexity_table %}
+                <tr>
+                    <td>{{ row.algorithm }}</td>
+                    <td>{{ row.paradigm }}</td>
+                    <td>{{ row.time_complexity }}</td>
+                    <td>{{ row.space_complexity }}</td>
+                    <td>{{ row.guarantees_optimal }}</td>
+                    <td>{{ row.note }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% if graph_path %}
+<div class="card">
+    <h2>Tiempo de ejecucion vs Monto objetivo</h2>
     <div class="graph-container">
-        <img src="/{{ coins_used_graph_path }}" alt="Gráfico de monedas usadas">
+        <img src="/{{ graph_path }}" alt="Grafico de tiempo de ejecucion">
     </div>
 </div>
 {% endif %}
@@ -62,18 +142,77 @@
 <div class="card">
     <h2>Uso de memoria pico vs Monto objetivo</h2>
     <p style="font-size:0.9rem; color:var(--muted); margin-bottom:0.75rem;">
-        Memoria RAM máxima consumida por cada algoritmo medida con <code>tracemalloc</code>.
-        Refleja la complejidad espacial real: Greedy ≈ O(1) · DP ≈ O(m) · Backtracking ≈ O(profundidad de pila).
+        Memoria RAM maxima consumida por cada algoritmo medida con <code>tracemalloc</code>.
     </p>
     <div class="graph-container">
-        <img src="/{{ memory_graph_path }}" alt="Gráfico de uso de memoria">
+        <img src="/{{ memory_graph_path }}" alt="Grafico de uso de memoria">
+    </div>
+</div>
+{% endif %}
+
+{% if coins_used_graph_path %}
+<div class="card">
+    <h2>Cantidad de monedas vs Monto objetivo</h2>
+    <div class="graph-container">
+        <img src="/{{ coins_used_graph_path }}" alt="Grafico de monedas usadas">
+    </div>
+</div>
+{% endif %}
+
+{% if greedy_gap_graph_path %}
+<div class="card">
+    <h2>Brecha Greedy vs Programacion Dinamica</h2>
+    {% if greedy_gap_summary and greedy_gap_summary.failure_count > 0 %}
+    <div class="input-summary">
+        <span><strong>Fallos detectados:</strong> {{ greedy_gap_summary.failure_count }}</span>
+        <span><strong>Mayor diferencia:</strong> {{ greedy_gap_summary.max_gap }} monedas</span>
+        <span><strong>Monedas extra totales:</strong> {{ greedy_gap_summary.total_extra_coins }}</span>
+    </div>
+    {% if greedy_gap_summary.first_failure %}
+    <p style="font-size:0.95rem; color:var(--muted); margin-bottom:0.75rem;">
+        Primer fallo: monto {{ greedy_gap_summary.first_failure.amount }}. Greedy uso {{ greedy_gap_summary.first_failure.greedy_count }} monedas y DP uso {{ greedy_gap_summary.first_failure.dp_count }}.
+    </p>
+    {% endif %}
+    {% else %}
+    <p style="font-size:0.95rem; color:var(--muted); margin-bottom:0.75rem;">
+        En los montos evaluados, Greedy coincidio con Programacion Dinamica para esta configuracion.
+    </p>
+    {% endif %}
+    <div class="graph-container">
+        <img src="/{{ greedy_gap_graph_path }}" alt="Grafico de brecha entre Greedy y DP">
+    </div>
+</div>
+{% endif %}
+
+{% if summary %}
+<div class="card">
+    <h2>Promedios en montos comparables</h2>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Algoritmo</th>
+                    <th>Tiempo promedio (ms)</th>
+                    <th>Memoria promedio (KB)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in summary.averages %}
+                <tr>
+                    <td>{{ row.algorithm }}</td>
+                    <td>{{ "%.4f"|format(row.avg_time_ms) }}</td>
+                    <td>{{ "%.2f"|format(row.avg_memory_kb) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endif %}
 
 {% if points %}
 <div class="card">
-    <h2>Datos del análisis</h2>
+    <h2>Datos del analisis</h2>
     <div class="table-wrapper" style="max-height:500px; overflow-y:auto;">
         <table>
             <thead>
@@ -118,29 +257,17 @@
         <div class="algo-card greedy">
             <span class="complexity">O(n)</span>
             <h3>Algoritmo Voraz</h3>
-            <p>
-                <strong>Más rápido</strong> de los tres. Tiempo prácticamente instantáneo incluso
-                para montos grandes. Sin embargo, <strong>no garantiza la solución óptima</strong>
-                en sistemas de monedas no canónicos.
-            </p>
+            <p>Es el mas rapido y usa poca memoria, pero no garantiza la solucion optima en sistemas no canonicos.</p>
         </div>
         <div class="algo-card dp">
-            <span class="complexity">O(m × n)</span>
-            <h3>Programación Dinámica</h3>
-            <p>
-                <strong>Mejor equilibrio</strong> entre velocidad y optimalidad. Siempre encuentra
-                la solución óptima con tiempo polinomial. Es la implementación
-                <strong>recomendada para uso general</strong>.
-            </p>
+            <span class="complexity">O(m x n)</span>
+            <h3>Programacion Dinamica</h3>
+            <p>Siempre encuentra la solucion optima y escala bien para uso general, aunque usa una tabla de tamano proporcional al monto.</p>
         </div>
         <div class="algo-card backtracking">
-            <span class="complexity">O(2ⁿ)</span>
+            <span class="complexity">Exponencial</span>
             <h3>Backtracking</h3>
-            <p>
-                <strong>Alto costo computacional</strong> exponencial. Solo práctico para montos
-                pequeños (&le;60). Su crecimiento explosivo lo hace <strong>inviable para problemas
-                grandes</strong>, aunque siempre encuentra el óptimo.
-            </p>
+            <p>Garantiza el optimo explorando combinaciones, pero su costo crece demasiado para montos grandes.</p>
         </div>
     </div>
 </div>
