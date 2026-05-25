@@ -1,0 +1,724 @@
+[
+  {
+    "id": "TC001",
+    "title": "Solve coin change with all algorithms",
+    "description": "Verify that entering valid coins and a target amount on the home flow produces results for greedy, dynamic programming, and backtracking with the expected solution details.",
+    "category": "Coin Change Solve",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the coin denominations field with valid comma-separated coin values"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the target amount field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Select the greedy, dynamic programming, and backtracking algorithms"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify results are displayed for all selected algorithms"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the results include the coins used, coin count, optimality, and execution time"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Solve coins with all algorithms on the HTML results page",
+    "description": "A user can submit valid coins and amount on the home page and see solved results for greedy, dynamic programming, and backtracking.",
+    "category": "Solve Coin Change (HTML)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the coin denominations field with a valid comma-separated list"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the target amount field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Select the greedy algorithm"
+      },
+      {
+        "type": "action",
+        "description": "Select the dynamic programming algorithm"
+      },
+      {
+        "type": "action",
+        "description": "Select the backtracking algorithm"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify results are displayed for each selected algorithm"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify coins used, coin count, optimality, and execution time are shown"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Solve coin change with greedy only and compare against optimal",
+    "description": "Verify that requesting greedy alone still shows whether the greedy solution matched the optimal result after the system performs its silent verification.",
+    "category": "Coin Change Solve",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the coin denominations field with valid comma-separated coin values"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the target amount field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Select only the greedy algorithm"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a greedy result is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the greedy result indicates whether it matched the optimal solution"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Solve coins with greedy only and verify optimality is shown",
+    "description": "A user can request only the greedy algorithm and still see whether the greedy result matched the optimal solution.",
+    "category": "Solve Coin Change (HTML)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the coin denominations field with a valid comma-separated list"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the target amount field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Select the greedy algorithm"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the greedy result is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an optimality status is shown"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Reject solve request without an algorithm selection",
+    "description": "Verify that submitting the solve form without selecting any algorithm is blocked and the user sees a validation message.",
+    "category": "Coin Change Solve",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the coin denominations field with valid comma-separated coin values"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the target amount field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an algorithm selection validation error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no results are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Reject invalid coin input on the HTML form",
+    "description": "A user who enters invalid coin denominations can submit the form and see validation feedback instead of results.",
+    "category": "Solve Coin Change (HTML)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the coin denominations field with invalid coin input"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the target amount field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Select the greedy algorithm"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a validation error is shown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no solve results are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Reject submission when no algorithm is selected",
+    "description": "A user who submits valid coins and amount without choosing an algorithm sees a validation message and no results.",
+    "category": "Solve Coin Change (HTML)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the coin denominations field with a valid comma-separated list"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the target amount field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a validation error is shown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no solve results are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Reject invalid coin input on solve form",
+    "description": "Verify that invalid coin denominations or malformed input on the solve form are rejected and no result set is shown.",
+    "category": "Coin Change Solve",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the coin denominations field with invalid comma-separated values"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the target amount field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Select at least one algorithm"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a coin denomination validation error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify no results are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Solve coin change through the REST API with one algorithm",
+    "description": "An API consumer can request a single algorithm through the JSON endpoint and receive a structured result.",
+    "category": "Solve Coin Change (REST API)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /api/solve"
+      },
+      {
+        "type": "action",
+        "description": "Provide valid coin denominations, amount, and the greedy algorithm in the query parameters"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a JSON response is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the greedy result is included in the response"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "API returns dynamic programming solution",
+    "description": "Verify that the REST solve endpoint returns a structured dynamic programming result when dp is requested.",
+    "category": "Dynamic Programming Algorithm",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /api/solve with valid coins, target amount, and the dynamic programming algorithm requested"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a structured JSON response is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the response includes the optimal coin combination and coin count for dynamic programming"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Solve coin change through the REST API with multiple algorithms",
+    "description": "An API consumer can request multiple algorithms through the JSON endpoint and receive a structured result for each one.",
+    "category": "Solve Coin Change (REST API)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /api/solve"
+      },
+      {
+        "type": "action",
+        "description": "Provide valid coin denominations, amount, and multiple algorithms in the query parameters"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a JSON response is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify results are included for each requested algorithm"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Compare multiple algorithms on the same input",
+    "description": "A user can run more than one algorithm for the same coins and amount and compare the returned results on one page.",
+    "category": "Solve Coin Change (HTML)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the coin denominations field with a valid comma-separated list"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the target amount field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Select the greedy algorithm"
+      },
+      {
+        "type": "action",
+        "description": "Select the dynamic programming algorithm"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify results are displayed for both selected algorithms"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the algorithms can be compared on the same page"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Run performance analysis and view benchmark summary",
+    "description": "Verify that submitting valid inputs on the analysis page generates benchmark charts and a summary table for the algorithms.",
+    "category": "Performance Analysis",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /analysis"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the coin denominations field with valid comma-separated coin values"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the maximum amount field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify benchmark charts are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a summary table is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Review analysis summary metrics and charts",
+    "description": "An analyst can submit an input on the analysis page and see benchmark summary metrics and charts for the algorithms.",
+    "category": "analysis",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /analysis"
+      },
+      {
+        "type": "action",
+        "description": "Enter a valid maximum amount"
+      },
+      {
+        "type": "action",
+        "description": "Submit the analysis request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a summary table is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify benchmark charts are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Verify greedy results are checked against the optimal solution",
+    "description": "When a user requests greedy only, the response still shows whether the greedy coin count matched the optimal solution.",
+    "category": "Greedy Algorithm",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /api/solve"
+      },
+      {
+        "type": "action",
+        "description": "Provide valid coin denominations, amount, and the greedy algorithm in the query parameters"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the greedy result is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an optimality status is shown for the greedy result"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "View comparison results for multiple algorithms",
+    "description": "Verify that comparing multiple algorithms on the same input shows distinct outputs for each selected algorithm on the results page.",
+    "category": "Coin Change Solve",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the coin denominations field with valid comma-separated coin values"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the target amount field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Select the greedy and dynamic programming algorithms"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify results are displayed for both selected algorithms"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the comparison shows separate coin counts for each algorithm"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "API returns backtracking solution within limit",
+    "description": "Verify that the REST solve endpoint returns a backtracking solution when the amount is within the supported limit.",
+    "category": "Backtracking Algorithm",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /api/solve with valid coins, an amount of 60 or less, and the backtracking algorithm requested"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a structured JSON response is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the response includes the backtracking coins used and coin count"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC018",
+    "title": "Review analysis output after running benchmarks with a different input",
+    "description": "An analyst can run the analysis page with a new maximum amount and see updated benchmark results on the page.",
+    "category": "analysis",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /analysis"
+      },
+      {
+        "type": "action",
+        "description": "Enter a valid maximum amount"
+      },
+      {
+        "type": "action",
+        "description": "Submit the analysis request"
+      },
+      {
+        "type": "action",
+        "description": "Enter a different valid maximum amount"
+      },
+      {
+        "type": "action",
+        "description": "Submit the analysis request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify updated analysis charts are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify updated summary metrics are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC019",
+    "title": "Reject invalid analysis input",
+    "description": "Verify that invalid analysis parameters are rejected on the analysis page and benchmark output is not shown.",
+    "category": "Performance Analysis",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /analysis"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the coin denominations field with invalid comma-separated values"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the maximum amount field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an analysis validation error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify benchmark charts are not displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC020",
+    "title": "Block backtracking results above the supported amount",
+    "description": "A user requesting backtracking for an amount above the supported limit sees an over-limit error while other requested algorithms still return results.",
+    "category": "Solve Coin Change (HTML)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the coin denominations field with a valid comma-separated list"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the target amount field with an amount above the backtracking limit"
+      },
+      {
+        "type": "action",
+        "description": "Select the dynamic programming algorithm"
+      },
+      {
+        "type": "action",
+        "description": "Select the backtracking algorithm"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a backtracking limit error is shown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the other selected algorithm still returns results"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC021",
+    "title": "Backtracking limit is surfaced for large amounts",
+    "description": "Verify that requesting backtracking with an amount above the supported limit shows a limit error while the request can still include other algorithms.",
+    "category": "Backtracking Algorithm",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /api/solve with valid coins, an amount greater than 60, the backtracking algorithm, and another supported algorithm requested"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the response shows a backtracking limit error"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the other requested algorithm still returns a result"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC022",
+    "title": "Handle zero, duplicate, or unsorted coin input",
+    "description": "A user can submit edge-case coin lists such as zero, duplicates, or unsorted values and see either a valid solve result or clear validation feedback.",
+    "category": "Solve Coin Change (HTML)",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the coin denominations field with an edge-case comma-separated list"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the target amount field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Select the greedy algorithm"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify either a solve result or a validation message is shown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page responds without showing unrelated output"
+      }
+    ],
+    "priority": "Low"
+  }
+]

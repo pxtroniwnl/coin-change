@@ -1,7 +1,38 @@
+# ── Entornos virtuales ──────────────────────────────────────────────────────
+venv/
+.venv/
+
+# ── Python ───────────────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *.egg-info/
-venv/
+*.pyo
+.pytest_cache/
+
+# ── Variables de entorno ─────────────────────────────────────────────────────
 .env
+.env.*
+
+# ── Gráficas generadas en tiempo de ejecución ────────────────────────────────
 static/graphs/*.png
+
+# ── Claude Code (instrucciones internas, no relevantes para colaboradores) ────
+CLAUDE.md
+.claude/
+
+# ── TestSprite (archivos temporales y de configuración local) ─────────────────
+.testsprite/
+testsprite_tests/tmp/
+
+# ── IDEs y editores ───────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Sistema operativo ────────────────────────────────────────────────────────
 .DS_Store
+Thumbs.db
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
