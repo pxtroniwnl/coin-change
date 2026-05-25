@@ -117,7 +117,7 @@ Para cada moneda c en orden descendente:
 Paso 1: mayor moneda disponible = 6 ≤ 11 → tomar 6   (restante: 5)
 Paso 2: mayor moneda disponible = 6 > 5  → saltar
          siguiente = 5 ≤ 5  → tomar 5   (restante: 0)
-Resultado: [6, 5] → 2 monedas ✅ (óptimo en este caso)
+Resultado: [6, 5] → 2 monedas (óptimo en este caso)
 ```
 
 **Complejidad:**
@@ -159,7 +159,7 @@ dp[6] = min(dp[5]+1, dp[1]+1, dp[0]+1) = 1   (usando moneda 6)
 dp[7] = min(dp[6]+1, dp[2]+1, dp[1]+1) = 2   (6+1 o 5+1+1)
 dp[8] = 3
 dp[9] = 2   (usando 5+4? No... 6+3? No... mejor: dp[3]+1=4, dp[4]+1=5... realmente dp[3]+1, dp[8]+1... )
-     = min(dp[8]+1=4, dp[4]+1=5, dp[3]+1=4) → pero [5,5]... dp[5]+1 con moneda 5 = 2 ✅
+     = min(dp[8]+1=4, dp[4]+1=5, dp[3]+1=4) → pero [5,5]... dp[5]+1 con moneda 5 = 2
 dp[10] = min(dp[9]+1, dp[5]+1, dp[4]+1) = min(3, 2, 5) = 2  (usando 5+5)
 ```
 
@@ -189,7 +189,7 @@ Para reconstruir las monedas usadas, se guarda qué moneda se eligió en cada po
           / | \      / | \    ...
         -6 -5 -1  -6 -5 -1
         (>4) m=0  m=4   ...
-             ✅
+             
              [6,5]=2 → mejor hasta ahora = 2
              → podar cualquier rama con ≥ 2 monedas usadas
 ```
@@ -454,24 +454,24 @@ uv run python -m pytest tests -q
 ```
 
 ```
-tests/test_greedy.py              ✅
-tests/test_dynamic_programming.py ✅
-tests/test_backtracking.py        ✅
+tests/test_greedy.py              
+tests/test_dynamic_programming.py 
+tests/test_backtracking.py        
 ```
 
 ### Tests de integración con TestSprite
 
 Se ejecutaron **15 tests automatizados de integración y UI** usando [TestSprite](https://www.testsprite.com), que verifica el comportamiento real de la aplicación corriendo en localhost.
 
-**Resultado: 15/15 tests pasaron — 100% ✅**
+**Resultado: 15/15 tests pasaron — 100%**
 
 | Grupo de requisito | Tests | Resultado |
 |---|---|---|
-| Resolver via formulario HTML | 8 | ✅ Todos pasaron |
-| Resolver via API REST | 4 | ✅ Todos pasaron |
-| Análisis de rendimiento | 2 | ✅ Todos pasaron |
-| Verificación de optimalidad Greedy | 1 | ✅ Pasó |
-| **Total** | **15** | **15 ✅ / 0 ❌** |
+| Resolver via formulario HTML | 8 | Todos pasaron |
+| Resolver via API REST | 4 | Todos pasaron |
+| Análisis de rendimiento | 2 | Todos pasaron |
+| Verificación de optimalidad Greedy | 1 | Pasó |
+| **Total** | **15** | **15 / 0** |
 
 **Casos cubiertos:**
 - Resolver con todos los algoritmos simultáneamente.
