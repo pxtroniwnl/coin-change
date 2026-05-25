@@ -76,6 +76,25 @@
 
 {% if summary %}
 <div class="card">
+    <h2>Exportar resultados</h2>
+    <p style="font-size:0.9rem; color:var(--muted); margin-bottom:1rem;">
+        Descarga el analisis completo con tabla de datos y graficas.
+    </p>
+    <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+        <a href="/export_analysis_csv?coins={{ request_coins }}&max_amount={{ max_amount }}"
+           class="btn btn-primary" style="text-decoration:none;">
+            &#11123; Exportar CSV
+        </a>
+        <a href="/export_analysis_pdf?coins={{ request_coins }}&max_amount={{ max_amount }}"
+           class="btn btn-primary" style="text-decoration:none; background:var(--accent, #e53e3e);">
+            &#11123; Exportar PDF
+        </a>
+    </div>
+</div>
+{% endif %}
+
+{% if summary %}
+<div class="card">
     <h2>Resumen comparativo</h2>
     <div class="conclusions-grid">
         <div class="algo-card greedy">

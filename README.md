@@ -335,6 +335,9 @@ pip install -r requirements.txt
 uvicorn app:app --reload
 ```
 
+> Si desea generar reportes en PDF desde la aplicación o los endpoints de análisis, asegúrese de tener instalada la dependencia `reportlab`.
+
+
 ---
 
 ## 5. Cómo usar la aplicación
@@ -418,6 +421,25 @@ curl "http://localhost:8000/api/solve?coins=1,5,6&amount=10&algorithms=greedy,dp
 - Backtracking se rechaza automáticamente si `amount > 60`.
 - La optimalidad de Greedy se verifica internamente contra DP.
 - Los resultados se devuelven siempre en el orden: greedy → dp → backtracking.
+
+---
+
+## 6.1 Exportar resultados y análisis
+
+Además de la interfaz web, esta aplicación ofrece endpoints para exportar resultados y análisis.
+
+- `GET /export_csv?coins=1,5,6&amount=10&algorithms=greedy,dp`
+- `GET /export_pdf?coins=1,5,6&amount=10&algorithms=greedy,dp`
+- `GET /export_analysis_csv?coins=1,5,6&max_amount=100`
+- `GET /export_analysis_pdf?coins=1,5,6&max_amount=100`
+
+En todos los casos los parámetros son:
+- `coins`: denominaciones separadas por coma.
+- `amount`: monto objetivo para resolver el cambio.
+- `algorithms`: algoritmos separados por coma para incluir en la exportación.
+- `max_amount`: monto máximo para el análisis comparativo.
+
+> Nota: La exportación a PDF utiliza la librería `reportlab`, que está incluida en las dependencias del proyecto.
 
 ---
 
