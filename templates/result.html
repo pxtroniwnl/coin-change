@@ -25,6 +25,17 @@
     </div>
 </div>
 
+{% if conclusion %}
+<div class="card" style="border-left: 5px solid var(--primary-color); background-color: #f7fafc; padding: 1.5rem; margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0; color: var(--primary-color); display: flex; align-items: center; gap: 0.5rem; font-size: 1.25rem;">
+        Análisis y Conclusión Automática
+    </h3>
+    <p style="font-size: 1.05rem; line-height: 1.6; margin: 0; color: #2d3748;">
+        {{ conclusion }}
+    </p>
+</div>
+{% endif %}
+
 <div class="section-label">Resultados por algoritmo</div>
 
 {% for result in results %}
@@ -34,7 +45,7 @@
     {% elif result.algorithm == 'backtracking' %}algo-backtracking
     {% endif %}">
 
-    <h3>
+    <h3 style="margin-top: 0;">
         {% if result.algorithm == 'greedy' %}
             <span class="algo-dot green"></span> Algoritmo Voraz (Greedy)
         {% elif result.algorithm == 'dp' %}
@@ -154,11 +165,13 @@
 </div>
 {% endfor %}
 
-<div class="btn-group" style="margin-top:1.5rem;">
+{% set run_algos = results | map(attribute='algorithm') | join(',') %}
+<div class="btn-group" style="margin-top:1.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
     <a href="/" class="btn btn-secondary">&#9664; Nueva consulta</a>
     <a href="{{ analysis_url or '/analysis' }}" class="btn btn-success">&#9654; Ver análisis</a>
+    <a href="/export_csv?coins={{ request_coins }}&amount={{ amount }}&algorithms={{ run_algos }}" class="btn btn-primary" style="background-color: #3182ce; color: white;">Exportar CSV</a>
+    <a href="/export_pdf?coins={{ request_coins }}&amount={{ amount }}&algorithms={{ run_algos }}" class="btn btn-primary" style="background-color: #e53e3e; color: white; border-color: #e53e3e;">Exportar PDF</a>
 </div>
 
 {% endif %}
 {% endblock %}
-
